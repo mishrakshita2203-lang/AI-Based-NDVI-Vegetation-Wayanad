@@ -1,9 +1,10 @@
-# AI-Based-NDVI-Vegetation-Wayanad
-AI-based NDVI vegetation health and density mapping of Wayanad District, Kerala, using Sentinel-2 imagery, Google Earth Engine, and QGIS.
-
 # AI-Based NDVI Vegetation Health and Density Mapping – Wayanad, Kerala
-
 This project presents an AI-inspired NDVI-based vegetation health and density assessment of Wayanad District, Kerala, using Sentinel-2 satellite imagery.
+
+## Project Files
+- [Project Report (PDF)](./ISA%20Project.pdf)
+- [GEE Script](./gee_ndvi_wayanad.js)
+
 
 ## Study Area
 Wayanad District, Kerala, India (Western Ghats region)
