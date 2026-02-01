@@ -1,11 +1,12 @@
 // Load district boundaries
 var districts = ee.FeatureCollection("FAO/GAUL/2015/level2");
 
+
 // Filter Wayanad district
 var wayanad = districts
   .filter(ee.Filter.eq('ADM2_NAME', 'Wayanad'));
-
 Map.centerObject(wayanad, 9);
+
 
 // Display boundary (ONLY outline, not filled)
 Map.addLayer(wayanad.style({
@@ -13,6 +14,7 @@ Map.addLayer(wayanad.style({
   fillColor: '00000000',
   width: 2
 }), {}, 'Wayanad Boundary');
+
 
 // Load Sentinel-2 Surface Reflectance data
 var s2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED')
@@ -22,6 +24,7 @@ var s2 = ee.ImageCollection('COPERNICUS/S2_SR_HARMONIZED')
   .median()
   .clip(wayanad);
 
+
 // True Color Composite (RGB)
 var tcc = {
   bands: ['B4', 'B3', 'B2'],
@@ -30,6 +33,7 @@ var tcc = {
 };
 
 Map.addLayer(s2, tcc, 'True Color Composite');
+
 
 // False Color Composite (NIR-Red-Green)
 var fcc = {
@@ -50,8 +54,10 @@ Map.addLayer(ndvi, {
   palette: ['blue', 'white', 'green']
 }, 'NDVI');
 
+
 // Clip NDVI strictly to Wayanad boundary
 var ndvi_clipped = ndvi.clip(wayanad);
+
 
 // AI-inspired rule-based NDVI classification
 var ndviClass = ndvi_clipped.expression(
@@ -60,6 +66,7 @@ var ndviClass = ndvi_clipped.expression(
  " : (b('NDVI') < 0.6) ? 3" +
  " : 4"
 ).rename('NDVI_Class');
+
 
 // Mask non-AOI pixels
 ndviClass = ndviClass.updateMask(ndvi_clipped.mask());
@@ -94,9 +101,11 @@ Map.addLayer(ndviFiltered, {
 }, 'Filtered NDVI Classes');
 
 
+
 // Prepare image with class + pixel area
 var areaImage = ee.Image.pixelArea()
   .addBands(ndviFiltered);
+
 
 // Calculate area statistics class-wise
 var areaStats = areaImage.reduceRegion({
@@ -109,8 +118,10 @@ var areaStats = areaImage.reduceRegion({
   maxPixels: 1e13
 });
 
+
 // Print results
 print('Vegetation Class Area (sq. meters):', areaStats);
+
 
 // Convert sq. meters to sq. km
 var classAreas = ee.List(areaStats.get('groups')).map(function(item) {
@@ -122,6 +133,7 @@ var classAreas = ee.List(areaStats.get('groups')).map(function(item) {
 
 print('Vegetation Class Area (sq. km):', classAreas);
 
+//Exporting Map  for preparing Final Map Layout in QGIS
 Export.image.toDrive({
   image: ndviFiltered,
   description: 'Wayanad_AI_Based_NDVI_Vegetation_Map',
